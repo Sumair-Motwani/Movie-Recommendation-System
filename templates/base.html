@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CINEVERSE | AI Movie Guide</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* --- 1. GLOBAL THEME --- */
+        :root {
+            --bg-color: #0f1014;
+            --card-bg: rgba(30, 32, 40, 0.7);
+            --primary: #e50914; /* Netflix Red */
+            --accent: #46d369;  /* Match Green */
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Background Gradient Spotlights */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(229, 9, 20, 0.08) 0%, transparent 50%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* --- 2. NAVBAR --- */
+        .navbar {
+            background: rgba(15, 16, 20, 0.85) !important;
+            backdrop-filter: blur(12px); /* The Glass Effect */
+            border-bottom: var(--glass-border);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            letter-spacing: 1px;
+            font-size: 1.8rem;
+            background: linear-gradient(45deg, #e50914, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-link {
+            color: #cfcfcf !important;
+            font-weight: 500;
+            transition: 0.3s;
+            margin-left: 15px;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        /* --- 3. MOVIE CARDS (THE STAR SHOW) --- */
+        .movie-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            border: var(--glass-border);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s;
+            position: relative;
+            height: 100%;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            z-index: 2;
+        }
+
+        .card-img-wrapper {
+            overflow: hidden;
+            position: relative;
+            height: 320px;
+        }
+
+        .movie-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .movie-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .card-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+        }
+
+        /* --- 4. BUTTONS --- */
+        .btn-glow {
+            background: linear-gradient(45deg, #e50914, #b20710);
+            border: none;
+            color: white;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(229, 9, 20, 0.4);
+            transition: 0.3s;
+        }
+
+        .btn-glow:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(229, 9, 20, 0.6);
+            color: white;
+        }
+
+        /* --- 5. UTILITIES --- */
+        .text-gradient {
+            background: linear-gradient(45deg, #fff, #adadad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('home') }}">
+                <i class="fas fa-play-circle me-2"></i>CINEVERSE
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    
+                    <li class="nav-item">
+                        <a class="nav-link text-danger fw-bold" href="{{ url_for('add_movie') }}">
+                            <i class="fas fa-lock me-1"></i> Admin
+                        </a>
+                    </li>
+
+                    {% if session.get('user_name') %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('watchlist') }}">
+                                <i class="fas fa-bookmark me-1"></i> Watchlist
+                            </a>
+                        </li>
+                        <li class="nav-item ms-3">
+                            <span class="text-white fw-bold border px-3 py-1 rounded-pill border-secondary">
+                                {{ session.get('user_name') }}
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-danger" href="{{ url_for('logout') }}">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
+                        <li class="nav-item">
+                            <a class="btn btn-glow ms-3" href="{{ url_for('register') }}">Get Started</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div style="margin-top: 100px;"></div>
+
+    <div class="container mb-5">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

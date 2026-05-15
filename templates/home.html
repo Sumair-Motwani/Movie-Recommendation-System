@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="p-5 mb-5 rounded-4 shadow-lg position-relative overflow-hidden text-white" 
+     style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.8)), url('https://image.tmdb.org/t/p/original/qJ2tW6WMUDux911r6m7haRef0WH.jpg'); background-size: cover; background-position: center; min-height: 450px;">
+    
+    <div class="position-relative z-2 h-100 d-flex flex-column justify-content-center" style="max-width: 600px;">
+        <span class="badge bg-danger w-25 mb-2">Trending Now</span>
+        <h1 class="display-3 fw-bold" style="text-shadow: 2px 2px 10px rgba(0,0,0,0.8);">The Dark Knight</h1>
+        <p class="lead fw-normal" style="text-shadow: 1px 1px 5px rgba(0,0,0,0.8);">
+            Batman raises the stakes in his war on crime. With the help of Lt. Jim Gordon and DA Harvey Dent, Batman sets out to dismantle the remaining criminal organizations.
+        </p>
+        <div class="mt-3">
+            <a href="/movie/2" class="btn btn-glow btn-lg px-4 me-2"><i class="fas fa-play me-2"></i> Watch Trailer</a>
+            <button class="btn btn-outline-light btn-lg px-4"><i class="fas fa-plus me-2"></i> My List</button>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <h2 class="fw-bold border-start border-4 border-danger ps-3 mb-0">Explore Movies</h2>
+    <div class="text-muted">Showing {{ movies|length }} titles</div>
+</div>
+
+<div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-4">
+    {% for movie in movies %}
+    <div class="col">
+        <div class="movie-card h-100">
+            <div class="card-img-wrapper">
+                <a href="{{ url_for('movie_details', movie_id=movie.MovieID) }}">
+                    <img src="{{ movie.poster_url }}" alt="{{ movie.Title }}" loading="lazy">
+                </a>
+                <div class="card-overlay">
+                    <h5 class="card-title text-white mb-1 text-truncate">{{ movie.Title }}</h5>
+                    <small class="text-secondary">{{ movie.ReleaseYear }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

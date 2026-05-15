@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="movie-card shadow-lg" style="transform: none; border: 1px solid rgba(255,255,255,0.2);">
+            <img src="{{ movie.poster_url }}" class="img-fluid w-100" alt="{{ movie.Title }}">
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <h1 class="display-3 fw-bold text-gradient">{{ movie.Title }}</h1>
+        <div class="d-flex align-items-center mb-4 text-secondary">
+            <span class="badge bg-dark border border-secondary me-3">{{ movie.ReleaseYear }}</span>
+            <span class="me-3"><i class="fas fa-star text-warning"></i> 4.8 Rating</span>
+            <span><i class="fas fa-clock"></i> 2h 15m</span>
+        </div>
+
+        <p class="lead text-light opacity-75">{{ movie.Description }}</p>
+
+        <div class="d-flex gap-3 mt-4 mb-5">
+            <a href="{{ url_for('add_to_watchlist', movie_id=movie.MovieID) }}" class="btn btn-outline-light px-4 py-2 rounded-pill">
+                <i class="fas fa-plus me-2"></i> Add to Watchlist
+            </a>
+            <a href="#reviews" class="btn btn-outline-secondary px-4 py-2 rounded-pill">
+                Read Reviews
+            </a>
+        </div>
+
+        {% if movie.trailer_url %}
+            <div class="ratio ratio-16x9 rounded-4 shadow-lg overflow-hidden border border-secondary">
+                <iframe src="{{ movie.trailer_url }}" title="Trailer" allowfullscreen></iframe>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mt-5 pt-4">
+    <h3 class="fw-bold text-danger mb-4"><i class="fas fa-fire me-2"></i>You Might Also Like</h3>
+    <div class="row row-cols-2 row-cols-md-4 g-4">
+        {% if recommendations %}
+            {% for rec in recommendations %}
+            <div class="col">
+                <div class="movie-card h-100">
+                    <div class="card-img-wrapper" style="height: 250px;">
+                        <a href="{{ url_for('movie_details', movie_id=rec.MovieID) }}">
+                            <img src="{{ rec.poster_url }}" alt="{{ rec.Title }}">
+                        </a>
+                        <div class="card-overlay">
+                            <h6 class="mb-0 text-truncate">{{ rec.Title }}</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">No similar movies found.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mt-5 mb-5" id="reviews">
+    <div class="p-4 rounded-4" style="background: rgba(255,255,255,0.05);">
+        <h3 class="fw-bold mb-4">User Reviews</h3>
+        
+        {% if session.get('user_id') %}
+        <form method="POST" class="mb-4">
+            <div class="input-group mb-3">
+                <select name="rating" class="form-select bg-dark text-white border-secondary" style="max-width: 120px;">
+                    <option value="5">★★★★★</option>
+                    <option value="4">★★★★</option>
+                    <option value="3">★★★</option>
+                    <option value="2">★★</option>
+                    <option value="1">★</option>
+                </select>
+                <input name="review" type="text" class="form-control bg-dark text-white border-secondary" placeholder="Write a review..." required>
+                <button class="btn btn-danger" type="submit">Post</button>
+            </div>
+        </form>
+        {% else %}
+            <p class="text-muted">Please <a href="{{ url_for('login') }}" class="text-danger">Login</a> to write a review.</p>
+        {% endif %}
+
+        {% if reviews %}
+            {% for r in reviews %}
+            <div class="border-bottom border-secondary py-3">
+                <div class="d-flex justify-content-between">
+                    <h6 class="fw-bold text-white">{{ r.user_name }}</h6>
+                    <span class="text-warning"><i class="fas fa-star"></i> {{ r.rating }}/5</span>
+                </div>
+                <p class="text-secondary mb-1">{{ r.review_text }}</p>
+                <small class="text-muted" style="font-size: 0.8rem;">{{ r.date }}</small>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">No reviews yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
